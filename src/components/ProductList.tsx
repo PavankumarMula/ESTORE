@@ -1,6 +1,8 @@
 import {ProductType} from "@/types/productType";
 import Categories from "./Categories";
 import ProductCard from "./ProductCard";
+import Link from "next/link";
+import Filter from "./Filter";
 
 
 // TEMPORARY
@@ -116,16 +118,23 @@ const products:ProductType[ ] = [
     },
 ];
 
-const ProductList = () => {
+const ProductList = ({category,pageName}:{category:string,pageName:"home"|"products"})=> {
     return (<>
      <div>
         <Categories/>
      </div>
+     {pageName==="products" && <Filter/>}
      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
      {products.map(product=>(
         <ProductCard key={product.id} product={product}/>
         ))}
      </div>
+     {pageName==="home" && 
+     
+     <div className="mt-4 flex justify-end text-sm text-gray-600 p-4 underline">
+        <Link href={category?`/products/?category=${category}`:"/products"}>see all products</Link>
+     </div>
+     }
     </>);
 };
 
