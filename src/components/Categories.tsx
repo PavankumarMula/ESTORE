@@ -62,7 +62,7 @@ const Categories = () => {
     function handleCategory(categoryName:string){
         const params = new URLSearchParams(searchParams);
         params.set("category",categoryName||"all");
-        router.push(`${pathName}?${params.toString()}`)
+        router.push(`${pathName}?${params.toString()}`,{scroll:false})
     }
 
     return (
