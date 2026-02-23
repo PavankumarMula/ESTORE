@@ -132,7 +132,7 @@ const ProductList = ({category,pageName}:{category:string,pageName:"home"|"produ
      {pageName==="home" && 
      
      <div className="mt-4 flex justify-end text-sm text-gray-600 p-4 underline">
-        <Link href={category?`/products/?category=${category}`:"/products"}>see all products</Link>
+        <Link href={category?`/products/?category=${category}`:"/products"}>view all products</Link>
      </div>
      }
     </>);
