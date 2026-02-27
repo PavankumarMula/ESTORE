@@ -5,3 +5,13 @@ export type CartItemType = ProductType & {
     selectedSize: string
     selectedColor: string,
 }
+
+export type CartStoreType =  {
+    cart:CartItemType[]
+}
+
+export type cartstoreActionsType = {
+    addToCart: (product: CartItemType)=>void,
+    removeFromCart: (product: CartItemType)=>void,
+    clearCart:()=>void
+}

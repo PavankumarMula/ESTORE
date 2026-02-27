@@ -9,6 +9,9 @@ import ShippingForm from "@/components/ShippingForm";
 import PaymentForm from "@/components/PaymentForm";
 import { useState } from "react";
 import {ShippingFormInputs} from "@/types/ShippingForm"
+import useCartStore from "@/store/cartStore";
+import toast,{Toast} from 'react-hot-toast'
+
 
 const steps = [
   { id: 1, title: "Shopping Cart" },
@@ -16,47 +19,47 @@ const steps = [
   { id: 3, title: "Payment Method" },
 ];
 
-const cartItems: CartItemType[] = [
-  {
-    id: 1,
-    name: "Adidas CoreFit T-Shirt",
-    shortDescription: "Lorem ipsum dolor sit amet consect adipisicing elit.",
-    description: "Full description here...",
-    price: 39.9,
-    sizes: ["s", "m", "l", "xl", "xxl"],
-    colors: ["gray", "purple", "green"],
-    images: { gray: "/products/1g.png", purple: "/products/1p.png", green: "/products/1gr.png" },
-    quantity: 1,
-    selectedSize: "m",
-    selectedColor: "gray",
-  },
-  {
-    id: 2,
-    name: "Puma Ultra Warm Zip",
-    shortDescription: "Lorem ipsum dolor sit amet consect adipisicing elit.",
-    description: "Full description here...",
-    price: 59.9,
-    sizes: ["s", "m", "l", "xl"],
-    colors: ["gray", "green"],
-    images: { gray: "/products/2g.png", green: "/products/2gr.png" },
-    quantity: 1,
-    selectedSize: "l",
-    selectedColor: "gray",
-  },
-  {
-    id: 3,
-    name: "Nike Air Essentials Pullover",
-    shortDescription: "Lorem ipsum dolor sit amet consect adipisicing elit.",
-    description: "Full description here...",
-    price: 69.9,
-    sizes: ["s", "m", "l"],
-    colors: ["green", "blue", "black"],
-    images: { green: "/products/3gr.png", blue: "/products/3b.png", black: "/products/3bl.png" },
-    quantity: 1,
-    selectedSize: "l",
-    selectedColor: "black",
-  },
-];
+// const cartItems: CartItemType[] = [
+//   {
+//     id: 1,
+//     name: "Adidas CoreFit T-Shirt",
+//     shortDescription: "Lorem ipsum dolor sit amet consect adipisicing elit.",
+//     description: "Full description here...",
+//     price: 39.9,
+//     sizes: ["s", "m", "l", "xl", "xxl"],
+//     colors: ["gray", "purple", "green"],
+//     images: { gray: "/products/1g.png", purple: "/products/1p.png", green: "/products/1gr.png" },
+//     quantity: 1,
+//     selectedSize: "m",
+//     selectedColor: "gray",
+//   },
+//   {
+//     id: 2,
+//     name: "Puma Ultra Warm Zip",
+//     shortDescription: "Lorem ipsum dolor sit amet consect adipisicing elit.",
+//     description: "Full description here...",
+//     price: 59.9,
+//     sizes: ["s", "m", "l", "xl"],
+//     colors: ["gray", "green"],
+//     images: { gray: "/products/2g.png", green: "/products/2gr.png" },
+//     quantity: 1,
+//     selectedSize: "l",
+//     selectedColor: "gray",
+//   },
+//   {
+//     id: 3,
+//     name: "Nike Air Essentials Pullover",
+//     shortDescription: "Lorem ipsum dolor sit amet consect adipisicing elit.",
+//     description: "Full description here...",
+//     price: 69.9,
+//     sizes: ["s", "m", "l"],
+//     colors: ["green", "blue", "black"],
+//     images: { green: "/products/3gr.png", blue: "/products/3b.png", black: "/products/3bl.png" },
+//     quantity: 1,
+//     selectedSize: "l",
+//     selectedColor: "black",
+//   },
+// ];
 
 const CartPage = () => {
   const searchParams = useSearchParams();
@@ -64,6 +67,8 @@ const CartPage = () => {
   const activeStep = searchParams.get("step") ?? "1";
   // This tells TypeScript: "This state starts as null, but it will eventually hold ShippingFormInputs"
   const [shippingForm, setShippingForm] = useState<ShippingFormInputs | null>(null);
+  const {cart,removeFromCart} = useCartStore();
+
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -99,11 +104,11 @@ const CartPage = () => {
         <div className="lg:col-span-7">
           {activeStep === "1" && (
             <>
-              <h2 className="mb-4 text-xl font-semibold text-gray-800">Cart Items ({cartItems.length})</h2>
+              <h2 className="mb-4 text-xl font-semibold text-gray-800">Cart Items ({cart.length})</h2>
               <div className="flex flex-col gap-4">
-                {cartItems.map((item) => (
+                {cart.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.id+item.selectedColor+item.selectedSize}
                     className="group relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md"
                   >
                     <div className="flex w-full items-center gap-4 sm:gap-6">
@@ -130,6 +135,7 @@ const CartPage = () => {
                     </div>
 
                     <button
+                      onClick={() => removeFromCart(item)}
                       className="absolute right-2 top-2 sm:static p-2 text-gray-300 hover:bg-red-50 hover:text-red-600 rounded-full transition-all"
                       aria-label="Remove item"
                     >
@@ -153,7 +159,7 @@ const CartPage = () => {
             <div className="space-y-4">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span className="font-medium text-gray-900">$169.70</span>
+                <span className="font-medium text-gray-900">{cart.reduce((acc,item)=>acc+item.price*item.quantity,0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping estimate</span>
@@ -166,7 +172,7 @@ const CartPage = () => {
 
               <div className="mt-6 flex justify-between border-t border-gray-100 pt-4 text-xl font-bold text-gray-900">
                 <span>Total Amount</span>
-                <span>$169.70</span>
+                <span>{cart.reduce((acc,item)=>acc+item.price*item.quantity,0).toFixed(2)}</span>
               </div>
             </div>
 

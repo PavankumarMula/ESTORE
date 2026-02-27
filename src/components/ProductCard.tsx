@@ -1,20 +1,45 @@
 'use client'
+
 import Image from "next/image";
+import toast, { Toaster } from 'react-hot-toast';
+
 import { ProductType } from "@/types/productType";
 import { BiCartAdd } from "react-icons/bi";
 import { useState } from "react";
+import useCartStore from "@/store/cartStore";
+
 
 const ProductCard = ({ product }: { product: ProductType }) => {
+
+  // access the global cart store 
+  const {cart,addToCart} = useCartStore();
+
   // state
   const [productType, setproductType] = useState({
     size: product.sizes[0],
     color: product.colors[0]
   })
 
+
+
   // handler 
   const handleProductType = ({ type, value }: { type: "color"|"size", value: string }) => {
     setproductType(prev=>({...prev,[type]:value}))
   }
+
+  // add to cart handler
+  const handleAddToCart = ()=>{
+    addToCart({
+      ...product,
+      quantity:1,
+      selectedSize:productType.size,
+      selectedColor:productType.color
+    })
+    toast.success("Product Is Added")
+  }
+
+  console.log("cart is",cart);
+
   return (
     <div className="group flex flex-col rounded-xl bg-white shadow-sm hover:shadow-lg transition">
       {/* Image */}
@@ -92,6 +117,7 @@ const ProductCard = ({ product }: { product: ProductType }) => {
           </p>
 
           <button
+          onClick={handleAddToCart}
             className="flex items-center gap-1 rounded-md bg-gray-950 px-3 py-1.5
                        text-xs sm:text-sm text-white transition hover:bg-gray-800"
           >
